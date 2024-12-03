@@ -199,23 +199,6 @@ class Epoch_HP():
 
 
 
-    # def get_bad_interval(self):
-    #     annotations=self.raw.annotations
-    #     onset=annotations.onset
-    #     onset_diff=np.diff(onset)
-
-    #     self.onset_bad=[x+3 for x,y in zip(onset,onset_diff) if y>15]
-
-    #     self.duration_bad=[y-3 for x,y in zip(onset,onset_diff) if y>15]
-
-    #     self.description_bad=['BAD_interval']*len(self.onset_bad)
-
-    #     self.annotations_bad=mne.Annotations(self.onset_bad, self.duration_bad, self.description_bad)
-
-
-
-    #     print(self.duration_bad)
-
 
 
 
@@ -238,7 +221,7 @@ class Epoch_HP():
          visual_events=np.array(visual_events)
          eog_events=self.eog_epochs.events
 
-
+        # remove blink if events around 300 ms from blink
          onset = [blink[0]/self.raw.info['sfreq']-0.5 for blink in eog_events if (blink[0] - find_nearest( visual_events, blink[0] )<75) and (blink[0] - find_nearest( visual_events, blink[0] )>-75)]
 
          n_blink=len(eog_events)

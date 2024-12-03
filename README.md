@@ -20,6 +20,7 @@ Each folder is generally organized with a main, helper and constants script.The 
 4)	evoked:
   - autoreject: used the Autoreject procedure to clean the epoched data after the ICA.
   - evoked_MNE: computes evoked potentials for each condition and each subject.
+  - evoked_cleanbad: used to interpolate bad electrodes after inspection (dict with all electrodes is stored in evoked_constants)
 
 ## Analyses
 The stats folder contains the code for statistical analyses.

@@ -21,33 +21,6 @@ mpl.rcParams['text.usetex'] = False
 
 ## General use functions
 
-
-def define_period(region, phy_sig=None, cond=None):
-    if region == "P1":
-        if cond == 'o':
-            crop_period = [0.14, 0.16]
-        else:
-            if phy_sig == 'rsp_phase':
-                crop_period = [0.065, 0.095]
-                #crop_period = [0.09, 0.12]
-            elif phy_sig == 'cardiac_phase':
-                crop_period = [0.09, 0.12]
-            else:
-                raise ValueError('physiological signal, either rsp_phase or cardiac phase, '
-                                 'are required')
-    elif region == "VAN":
-        crop_period = [0.24, 0.34]
-    elif region == 'P3a':
-        crop_period = [0.32,0.36]
-    elif region == "LP":
-        crop_period = [0.4, 0.5]
-    else:
-        raise ValueError(
-            'Region not available, please choose from P1, VAN or LP')
-
-    return crop_period
-
-
 def get_erp_df(evokeds, crop_period, picks_ERP):
     erp_df = {}
     for lab, cond in evokeds.items():
@@ -128,7 +101,7 @@ def get_DF(evoked, crop_value=None, g_excl=None, picks=None):
 
     '''
 
-    if picks is not None:
+    if picks is not None: #select only certain electrodes
         evoked = [ev.pick(picks) for ev in evoked]
     if crop_value != None:
         data_crop = evoked[0].copy().crop(crop_value[0], crop_value[1])
@@ -562,79 +535,10 @@ def tTest_ana(evoked, label=None, crop_value=None, FDR=False,
 ## Bayes tests
 
 
-def tTest_bayes(evoked, label=None, crop_value=None, FDR=False,
-                plot_times='peaks', averages=None, p_val=.05, g_excl=None,
-                report=None, png=None, perm=False, n_perm=1000):
-
-    evoked_1 = get_DF(evoked[0], crop_value=crop_value, g_excl=g_excl)
-    evoked_2 = get_DF(evoked[1], crop_value=crop_value, g_excl=g_excl)
-
-    n_rep = len(evoked[0])
-    len_check(evoked, n_rep)
-
-    X = evoked_1-evoked_2
-    print(X)
-    # format data
-    shape = X.shape
-    X = X.reshape(shape[0], shape[1]*shape[2])
-
-    # T-test
-    out = pg.ttest(X, 0)
-    return out
-    # ts=out[0]
-    # ps=out[1]
-    # ts=ts.reshape(128, 257)
-    # ps=ps.reshape(128,257)
-    ##establish significancy mask (can be FDR or noc)
-    # if FDR:
-    # reject_fdr, pval_fdr = fdr_correction(ps)
-    # sig_value=reject_fdr
-    # else:
-    # sig_value=ps<p_val
-#
-    #plot image (need to convert in evoked onject to do it)
-    # print(shape)
-#
-#
-    #ts=ts.reshape(shape[0],shape[1],shape,[2])
-    #ps=ps.reshape(shape[0],shape[1],shape,[2])
-    # evok=evoked_plot(ts,tmin=crop_value[0])
-    #generate whole picture
-    # fig_evo=evok.plot_image(mask=sig_value,scalings=1,units='T-value',show_names='auto')
-    # if png != None:
-    # fig_path=f'ana/results_report/images/t-tests/{png}'
-    # if not os.path.exists(fig_path):
-    # os.makedirs(fig_path)
-    # filenam=fig_path+f'/{png}_mass.png'
-    # fig_evo.savefig(filenam,dpi=600)
-    #generate topoplot
-#
-    # fig_topo=evok.plot_topomap(plot_times,outlines='head',scalings=1,units='T-value',average=averages,mask=sig_value)
-    # if png != None:
-    # fig=plt.gcf()
-    # filenam=fig_path+f'/{png}_topo.png'
-    # fig.savefig(filenam,dpi=600,transparent=True)
-#
-#
-    #add graphs to report to produce HTML only if label is present
-    # if FDR:
-    # corr='FDR corrected'
-    # else:
-    # corr='noc'
-#
-    # if label != None:
-    # captions=[f'Time-course of {label} {corr}, pval ={p_val}',f'Topoplot of {label} on {plot_times} {corr}, p val={p_val}']
-    # report.add_figure(fig_evo,title=f'T-tests for {label}: image' ,caption=captions[0],image_format='svg')
-    # report.add_figure(fig_topo,title=f'T-tests for {label}: topo' ,caption=captions[1],image_format='svg')
-    # return report
-#
-    #
-    # if label != None:
-    # return report
 
 
 ## Anovas
-
+#when picks it selects specific electrodes to average
 def Anovas_picks(evoked, effect_labels, picks, crop_value=None,
                  factor_levels=[2, 2], effects='A*B', FDR=False, p_val=0.05, png=None):
     X = [get_DF(X, crop_value=crop_value, picks=picks) for X in evoked]
