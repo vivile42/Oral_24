@@ -19,13 +19,13 @@ for g_n in b_cs.G_O_ica[1:]:
         #fif_taskfiles=files.condition_files
         files.get_info(end_fix=17)
         epochs=hp.Epoch_HP(files)
-        #epochs.get_eog_epochs(thresh=None)
-        #epochs.get_exp_epochs()
-        #epochs.get_ecg_epochs()
+        epochs.get_eog_epochs(thresh=None)
+        epochs.get_exp_epochs()
+        epochs.get_ecg_epochs()
         epochs.run_infoICA()
-        #epochs.run_fastICA()
+
         
-        #epochs.save_epochs()
+        epochs.save_epochs()
 
         # try:
         #     epochs.select_ICA_components()
@@ -44,14 +44,3 @@ for g_n in b_cs.G_O_ica[1:]:
 
         
         
-# for g_n in b_cs.G_bad_card:
-#     for cond in cs.condition[0]:
-#         files=files_in_out.GetFiles(filepath=cs.datafolder,eeg_format=cs.eeg_format,g_num=g_n)
-#         files.select_condition(cond)
-#         #fif_taskfiles=files.condition_files
-#         files.get_info(end_fix=17)
-#         epochs=hp.Epoch_HP(files)
-#         epochs.raw.set_annotations(None)
-#         epochs.run_fastICA()
-
-#%%
