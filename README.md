@@ -26,11 +26,11 @@ Each folder is generally organized with a main, helper and constants script.The 
 The stats folder contains the code for statistical analyses.
 ### Behavioral
 1) Behav_stats.ipynb: jupyter notebook to compute descriptive statistics and code to generate figures.
-2) parametres_sub_o.ipynb: reads and compute descriptive parametres for subjects characteristics 
+2) behavioral_GLM.Rmd R notebook with GLM models to analyses reaction times
+3) parametres_sub_o.ipynb: reads and compute descriptive parametres for subjects characteristics 
 ### Sensor space
 1)	ERP_stats.ipynb: jupyter notebook that contains all analysis and figure output for the ERP analyses for awareness and cardiac/ resp phase.
-2) Mass_anovas.ipynb: jupyter notebook that contains mass univariate anovas  FDR corrected 
-3) Stats_helper contains helper functions used in sensor_space_stats.ipynb.
+2)  Stats_helper contains helper functions used in sensor_space_stats.ipynb.
 
 
 

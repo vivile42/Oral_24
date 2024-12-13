@@ -1,0 +1,67 @@
+---
+title: "Behavioral analyses"
+output: html_notebook
+---
+
+This is an [R Markdown](http://rmarkdown.rstudio.com) Notebook. When you execute code within the notebook, 
+
+#load libraries
+```{r}
+library("dplyr")
+library('lme4')
+library('lmerTest')
+library('arrow')
+require('flexplot')
+library("tidyverse")
+library('stats')
+library('fitdistrplus')
+library('emmeans')
+library('statmod')
+
+```
+
+
+
+#load data
+
+```{r}
+
+df<-arrow::read_feather('/Volumes/BBC/BBC/WP1/data/EEG/tsk/ana/behavioral/df_o_quantilefilt.feather')
+```
+
+```{r}
+df$g_num<-factor(df$g_num)
+df$awareness<-factor(df$awareness)
+df$rsp_phase<-factor(df$rsp_phase)
+df$cardiac_phase<-factor(df$cardiac_phase)
+
+```
+
+
+```{r}
+dinvgauss <- statmod::dinvgauss
+pinvgauss <- statmod::pinvgauss
+qinvgauss <- statmod::qinvgauss
+rinvgauss <- statmod::rinvgauss
+
+fit_inverse<-fitdist(df$RT,'invgauss',start=list(mean=5,shape=1))
+summary(fit_inverse)
+plot(fit_inverse)
+```
+
+Fit generalized linear models with an inverse family and identity link, with subject as random factor and awareness and respiratory phase as fixed factors
+
+```{r}
+glm_model<-glmer(RT~awareness*rsp_phase+(1|g_num), data=df, family=inverse.gaussian(link="identity"))
+summary(glm_model)
+plot(glm_model)
+
+```
+Fit generalized linear models with an inverse family and identity link, with subject as random factor and awareness and cardiac phase as fixed factors
+
+```{r}
+glm_model<-glmer(RT~awareness*cardiac_phase+(1|g_num), data=df, family=inverse.gaussian(link="identity"))
+summary(glm_model)
+plot(glm_model)
+```
+
