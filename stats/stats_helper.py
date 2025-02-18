@@ -16,8 +16,10 @@ from scipy import stats
 from mne.stats import fdr_correction, f_mway_rm, permutation_t_test
 import matplotlib.pyplot as plt
 import matplotlib as mpl
+import pandas as pd
 mpl.rcParams['svg.fonttype'] = 'none'
 mpl.rcParams['text.usetex'] = False
+from scipy.stats import pearsonr,spearmanr
 
 ## General use functions
 
@@ -671,4 +673,79 @@ def Anovas_ana(evoked, effects_labels, crop_value=None, g_excl=None, factor_leve
 
     return report
 
-#%%
+def extract_components_corr(cond_erp,picks_dict,time_int_dict):
+
+    # Main loop to extract average potential around defined compoenents
+    dict_df={}
+    #loop around dict with picked electrodes
+    for k,item in picks_dict.items():
+        #predefine list for g numbers and amplitude data
+        list_g_num=[]
+        list_avg_data=[]
+
+        for erp_g in cond_erp:
+             #store info on time interval
+             time_int=time_int_dict[k]
+             #extract both time interval and electrodes
+             erp_data=erp_g.copy().crop(time_int[0],time_int[1]).pick_channels(item).data
+             #compute average from filtered ERP data
+             avg_data=np.average(erp_data)
+             #append data to list
+             list_avg_data.append(avg_data)
+             # append g_num to list
+             g_num=erp_g.comment[-3:]
+             list_g_num.append(g_num)
+        #assign complete list to dict with componenet as key
+        dict_df[k]=list_avg_data
+    # assign g_num list to dict
+    dict_df['g_num']=list_g_num
+    #create pd dataframe from dict
+    pd_df=pd.DataFrame.from_dict(dict_df)
+    return pd_df
+
+def filter_RT_df_corr(RT_df,awa_cond,phy_cond):
+    if awa_cond !='':
+        RT_df_cond=RT_df[RT_df['awareness']==awa_cond]
+        print(f'includes only {awa_cond}')
+    else:
+        print(f'includes all awareness')
+
+    if phy_cond !='':
+         if phy_cond =='sys' or phy_cond =='dia':
+             RT_df_cond=RT_df[RT_df['cardiac_phase']==phy_cond]
+             print(f'includes only {phy_cond}')
+         else:
+             RT_df_cond=RT_df[RT_df['rsp_phase']==phy_cond]
+             print(f'includes only {phy_cond}')
+    else:
+        print(f'includes all phy cond')
+
+
+    pivot_RT_df=pd.pivot_table(RT_df_cond,index=['g_num'],values='RT')
+    return pivot_RT_df
+
+
+def calculate_pvalues_pearson(df): #obtain p values for pearson corr
+
+    dfcols = pd.DataFrame(columns=df.columns)
+    pvalues = dfcols.transpose().join(dfcols, how='outer')
+    for r in df.columns:
+        for c in df.columns:
+            tmp = df[df[r].notnull() & df[c].notnull()]
+            pvalues[r][c] = round(pearsonr(tmp[r], tmp[c])[1], 4)
+    return pvalues
+
+def calculate_pvalues_spearman(df): #obtain p values for spearman corr
+    dfcols = pd.DataFrame(columns=df.columns)
+    pvalues = dfcols.transpose().join(dfcols, how='outer')
+    for r in df.columns:
+        for c in df.columns:
+            tmp = df[df[r].notnull() & df[c].notnull()]
+            pvalues[r][c] = round(spearmanr(tmp[r], tmp[c])[1], 4)
+    return pvalues
+def filter_corr_df(df,awa_cond,phy_cond):
+    #select first row
+    RT_row=df.iloc[[0]]
+    #change row idx to condition
+    RT_row=RT_row.rename(index={'RT':f'{awa_cond}_{phy_cond}'})
+    return  RT_row
